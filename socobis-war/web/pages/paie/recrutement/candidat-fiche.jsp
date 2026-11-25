@@ -21,10 +21,14 @@
     pc.getChampByName("email").setLibelle("Email");
     pc.getChampByName("telephone").setLibelle("T&eacute;l&eacute;phone");
     pc.getChampByName("email").setLibelle("Adresse email");
+    pc.getChampByName("idposte").setLibelle("Poste recherch&eacute;");
+    pc.getChampByName("idmagasin").setLibelle("Magasin souhait&eacute;");
+    pc.getChampByName("idpersonnel").setLibelle("Identifiant de la fiche personnelle");
+    pc.getChampByName("idpersonnel").setLien(lien + "?but=personnel/personnel-fiche.jsp", "id=");
 
     String[] ordre = {
-        "id","nom","prenom","adresse","telephone",
-        "idqualification","remarque",
+        "id","nom","prenom","adresse","telephone","idposte","idmagasin",
+        "idqualification","remarque","idpersonnel"
     };
     pc.setOrdre(ordre);
 

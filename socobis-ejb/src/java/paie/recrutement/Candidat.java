@@ -13,6 +13,9 @@ public class Candidat extends ClassMAPTable {
     private String idqualification;
     private String remarque;
     private String idfonction; 
+    private String idposte;
+    private String idmagasin;
+    private String idpersonnel;
     private String direction;  
     private String compte;     
 
@@ -60,6 +63,12 @@ public class Candidat extends ClassMAPTable {
     public void setRemarque(String remarque) { this.remarque = remarque; }
     public String getIdfonction() { return idfonction; }
     public void setIdfonction(String idfonction) { this.idfonction = idfonction; }
+    public String getIdposte() { return idposte; }
+    public void setIdposte(String idposte) { this.idposte = idposte; }
+    public String getIdmagasin() { return idmagasin; }
+    public void setIdmagasin(String idmagasin) { this.idmagasin = idmagasin; }
+    public String getIdpersonnel() { return idpersonnel; }
+    public void setIdpersonnel(String idpersonnel) { this.idpersonnel = idpersonnel; }
     public String getDirection() { return direction; }
     public void setDirection(String direction) { this.direction = direction; }
     public String getCompte() { return compte; }

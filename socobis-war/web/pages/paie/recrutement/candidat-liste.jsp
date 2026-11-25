@@ -11,11 +11,11 @@
     Candidat o = new Candidat();
     o.setNomTable("CANDIDAT");
     
-    // 7 colonnes
     String[] listeCrt = {"id","nom","prenom","email","telephone","idqualification","remarque"};
+    String[] listeInt = {};
     String[] libEntete = {"id","nom","prenom","email","telephone","idqualification","remarque"};
     
-    PageRecherche pr = new PageRecherche(o, request, listeCrt, libEntete, libEntete.length);
+    PageRecherche pr = new PageRecherche(o, request, listeCrt, listeInt, 4, libEntete, libEntete.length);
     pr.setTitre("Liste des candidats");
     pr.setUtilisateur((user.UserEJB) session.getValue("u"));
     pr.setLien((String) session.getValue("lien"));
@@ -42,7 +42,6 @@
     pr.getTableau().setColonneLien(colonneLien);
     pr.getTableau().setAttLien(attributLien);
 
-    // CORRECTION ICI : 7 libellés pour 7 colonnes
     String[] libEnteteAffiche = {"Id", "Nom", "Prénom", "Email", "Téléphone", "Qualification", "Remarque"};
     pr.getTableau().setLibelleAffiche(libEnteteAffiche);
     

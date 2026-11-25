@@ -15,7 +15,7 @@
         Personnel personnel = new Personnel();
         PageInsert pi = new PageInsert(personnel, request, u);
         pi.setLien((String) session.getValue("lien"));
-        pi.setTitre("Saisie d'un nouveau personnel");
+        pi.setTitre("Création d'une fiche personnelle");
 
     
         Liste[] listes = new Liste[2];
@@ -32,6 +32,7 @@
 
         
         pi.getFormu().getChamp("nom").setLibelle("Nom *");
+        pi.getFormu().getChamp("prenom").setLibelle("Prénom");
         pi.getFormu().getChamp("telephone").setLibelle("Téléphone");
         pi.getFormu().getChamp("mail").setLibelle("Email");
         pi.getFormu().getChamp("adresse").setLibelle("Adresse");
@@ -42,7 +43,7 @@
         pi.getFormu().getChamp("dateembauche").setLibelle("Date d'embauche *");
         pi.getFormu().getChamp("dateembauche").setType("date");
 
-        String[] ordre = {"nom", "telephone", "mail", "adresse", "compte", "remarque", "idposte", "idmagasin", "dateembauche"};
+        String[] ordre = {"nom", "prenom", "telephone", "mail", "adresse", "compte", "remarque", "idposte", "idmagasin", "dateembauche"};
         pi.getFormu().setOrdre(ordre);
         
         pi.preparerDataFormu();

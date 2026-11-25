@@ -12,10 +12,11 @@
         
         PersonnelComplet p = new PersonnelGestionService().lire(id);
         PageConsulte pc = new PageConsulte(p, request, u);
-        pc.setTitre("Dossier du personnel");
+        pc.setTitre("Fiche personnelle");
         
         pc.getChampByName("id").setLibelle("ID");
         pc.getChampByName("nom").setLibelle("Nom");
+        pc.getChampByName("prenom").setLibelle("Prénom");
         pc.getChampByName("telephone").setLibelle("Téléphone");
         pc.getChampByName("mail").setLibelle("Email");
         pc.getChampByName("adresse").setLibelle("Adresse");
@@ -27,7 +28,7 @@
         pc.getChampByName("actif").setLibelle("Statut");
         pc.getChampByName("remarque").setLibelle("Remarque");
 
-        String[] ordre = {"id", "nom", "telephone", "mail", "adresse", "compte", "poste", "magasin", "dateembauche", "datedebauche", "actif", "remarque"};
+        String[] ordre = {"id", "nom", "prenom", "telephone", "mail", "adresse", "compte", "poste", "magasin", "dateembauche", "datedebauche", "actif", "remarque"};
         pc.setOrdre(ordre);
 
         String pageModif = "personnel/personnel-modif.jsp&id=" + id;
@@ -60,5 +61,5 @@
 </div>
 <% } catch (Exception e) {
     e.printStackTrace(); %>
-<script>alert('Impossible de charger le dossier.'); history.back();</script>
+<script>alert('Impossible de charger la fiche personnelle.'); history.back();</script>
 <% } %>

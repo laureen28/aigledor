@@ -12,7 +12,7 @@
         if ("debaucher".equals(acte)) {
             service.debaucher(id, request.getParameter("dateDebauche"), request.getParameter("remarque"), login);
         } else {
-            id = service.enregistrer(id, request.getParameter("nom"), request.getParameter("telephone"),
+            id = service.enregistrer(id, request.getParameter("nom"), request.getParameter("prenom"), request.getParameter("telephone"),
                     request.getParameter("mail"), request.getParameter("adresse"), request.getParameter("remarque"),
                     request.getParameter("compte"), request.getParameter("idposte"), request.getParameter("idmagasin"),
                     request.getParameter("dateembauche"), login);

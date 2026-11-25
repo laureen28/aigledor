@@ -76,11 +76,6 @@
             }
         }        
         queryString = "but="+u.findHomePageServices(u.getUser().getIdrole(), idPoint, idCaisse);
-        String queryURL = request.getQueryString();
-        if(queryURL != null && !queryURL.equals("")){
-
-            queryString = queryURL;
-        }
         if (ret.length > 0) {
             session.setAttribute("dirlib", ret[0].getVal());
             u.setIdDirection(ret[0].getVal());
@@ -114,7 +109,3 @@
         return;
     }
 %>
-
-
-
-<script language='JavaScript'> document.location.replace('<%=lien%>?"<%=queryString%>');</script>

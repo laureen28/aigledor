@@ -16,6 +16,7 @@ public class PersonnelGestionService {
                 PersonnelComplet p = new PersonnelComplet();
                 p.setId(result.getString("id"));
                 p.setNom(result.getString("nom"));
+                p.setPrenom(result.getString("prenom"));
                 p.setTelephone(result.getString("telephone"));
                 p.setMail(result.getString("mail"));
                 p.setAdresse(result.getString("adresse"));
@@ -34,6 +35,13 @@ public class PersonnelGestionService {
     }
 
     public String enregistrer(String id, String nom, String telephone, String mail,
+            String adresse, String remarque, String compte, String idposte,
+            String idmagasin, String dateEmbauche, String utilisateur) throws Exception {
+        return enregistrer(id, nom, null, telephone, mail, adresse, remarque, compte,
+                idposte, idmagasin, dateEmbauche, utilisateur);
+    }
+
+    public String enregistrer(String id, String nom, String prenom, String telephone, String mail,
             String adresse, String remarque, String compte, String idposte,
             String idmagasin, String dateEmbauche, String utilisateur) throws Exception {
         if (nom == null || nom.trim().isEmpty()) throw new Exception("Le nom est obligatoire.");
@@ -61,14 +69,15 @@ public class PersonnelGestionService {
                 p.construirePK(connection);
                 id = p.getId();
                 try (PreparedStatement insert = connection.prepareStatement(
-                        "INSERT INTO public.personnel (id, nom, telephone, mail, adresse, remarque, compte) VALUES (?, ?, ?, ?, ?, ?, ?)")) {
+                        "INSERT INTO public.personnel (id, nom, prenom, telephone, mail, adresse, remarque, compte) VALUES (?, ?, ?, ?, ?, ?, ?, ?)")) {
                     insert.setString(1, id);
                     insert.setString(2, nom.trim());
-                    insert.setString(3, blankToNull(telephone));
-                    insert.setString(4, blankToNull(mail));
-                    insert.setString(5, blankToNull(adresse));
-                    insert.setString(6, blankToNull(remarque));
-                    insert.setString(7, blankToNull(compte));
+                    insert.setString(3, blankToNull(prenom));
+                    insert.setString(4, blankToNull(telephone));
+                    insert.setString(5, blankToNull(mail));
+                    insert.setString(6, blankToNull(adresse));
+                    insert.setString(7, blankToNull(remarque));
+                    insert.setString(8, blankToNull(compte));
                     insert.executeUpdate();
                 }
             } else {
@@ -80,18 +89,18 @@ public class PersonnelGestionService {
                     ancienMagasin = affectation[1];
                 }
                 try (PreparedStatement update = connection.prepareStatement(
-                        "UPDATE public.personnel SET nom=?, telephone=?, mail=?, adresse=?, remarque=?, compte=? WHERE id=?")) {
+                        "UPDATE public.personnel SET nom=?, prenom=COALESCE(?, prenom), telephone=?, mail=?, adresse=?, remarque=?, compte=? WHERE id=?")) {
                     update.setString(1, nom.trim());
-                    update.setString(2, blankToNull(telephone));
-                    update.setString(3, blankToNull(mail));
-                    update.setString(4, blankToNull(adresse));
-                    update.setString(5, blankToNull(remarque));
-                    update.setString(6, blankToNull(compte));
-                    update.setString(7, id);
+                    update.setString(2, blankToNull(prenom));
+                    update.setString(3, blankToNull(telephone));
+                    update.setString(4, blankToNull(mail));
+                    update.setString(5, blankToNull(adresse));
+                    update.setString(6, blankToNull(remarque));
+                    update.setString(7, blankToNull(compte));
+                    update.setString(8, id);
                     if (update.executeUpdate() != 1) throw new Exception("Personnel introuvable.");
                 }
             }
-
 
             try (PreparedStatement upsert = connection.prepareStatement(
                     "INSERT INTO public.personnel_professionnel (idpersonnel, idposte, idmagasin, dateembauche, actif) " +
@@ -118,6 +127,50 @@ public class PersonnelGestionService {
         } finally {
             if (connection != null) connection.close();
         }
+    }
+
+    public String creerDepuisEmbauche(Connection connection, String nom, String prenom,
+            String telephone, String mail, String adresse, String remarque, String compte,
+            String idposte, String idmagasin, Date dateEmbauche, String utilisateur) throws Exception {
+        if (connection == null) throw new Exception("Connexion à la base de données manquante.");
+        if (nom == null || nom.trim().isEmpty()) throw new Exception("Le nom du candidat est obligatoire.");
+        if (idposte == null || idposte.trim().isEmpty()) throw new Exception("Le poste du candidat est obligatoire.");
+        if (idmagasin == null || idmagasin.trim().isEmpty()) throw new Exception("Le magasin du candidat est obligatoire.");
+        if (dateEmbauche == null) throw new Exception("La date de la fiche personnelle est obligatoire.");
+        if (utilisateur == null || utilisateur.trim().isEmpty()) throw new Exception("Utilisateur non identifié.");
+
+        Personnel personnel = new Personnel();
+        personnel.construirePK(connection);
+        String id = personnel.getId();
+
+        try (PreparedStatement insert = connection.prepareStatement(
+                "INSERT INTO public.personnel (id, nom, prenom, telephone, mail, adresse, remarque, compte) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?)")) {
+            insert.setString(1, id);
+            insert.setString(2, nom.trim());
+            insert.setString(3, blankToNull(prenom));
+            insert.setString(4, blankToNull(telephone));
+            insert.setString(5, blankToNull(mail));
+            insert.setString(6, blankToNull(adresse));
+            insert.setString(7, blankToNull(remarque));
+            insert.setString(8, blankToNull(compte));
+            insert.executeUpdate();
+        }
+
+        try (PreparedStatement insert = connection.prepareStatement(
+                "INSERT INTO public.personnel_professionnel (idpersonnel, idposte, idmagasin, dateembauche, actif) " +
+                "VALUES (?, ?, ?, ?, TRUE)")) {
+            insert.setString(1, id);
+            insert.setString(2, idposte);
+            insert.setString(3, idmagasin);
+            insert.setDate(4, dateEmbauche);
+            insert.executeUpdate();
+        }
+
+        String apres = snapshot(connection, id);
+        insererMouvement(connection, id, "EMBAUCHE", dateEmbauche, null, idposte,
+                null, idmagasin, remarque, utilisateur, null, apres);
+        return id;
     }
 
     public void debaucher(String id, String dateDebauche, String remarque, String utilisateur) throws Exception {
@@ -200,7 +253,7 @@ public class PersonnelGestionService {
                 "FROM public.personnel p LEFT JOIN public.personnel_professionnel pp ON pp.idpersonnel = p.id WHERE p.id = ?")) {
             statement.setString(1, id);
             try (ResultSet result = statement.executeQuery()) {
-                if (!result.next()) throw new Exception("Impossible de lire le dossier.");
+                if (!result.next()) throw new Exception("Impossible de lire la fiche personnelle.");
                 return result.getString(1);
             }
         }

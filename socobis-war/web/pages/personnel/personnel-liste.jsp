@@ -3,9 +3,9 @@
 <%
     try {
         PersonnelComplet personnel = new PersonnelComplet();
-        String[] criteres = {"id", "nom", "telephone", "poste", "magasin"};
-        String[] colonnes = {"id", "nom", "telephone", "poste", "magasin", "dateembauche", "datedebauche", "actif"};
-        String[] entetes = {"ID", "Nom", "Téléphone", "Poste", "Magasin", "Date d'embauche", "Date de débauche", "Actif"};
+        String[] criteres = {"id", "nom", "prenom", "telephone", "poste", "magasin"};
+        String[] colonnes = {"id", "nom", "prenom", "telephone", "poste", "magasin", "dateembauche", "datedebauche", "actif"};
+        String[] entetes = {"ID", "Nom", "Prénom", "Téléphone", "Poste", "Magasin", "Date d'embauche", "Date de débauche", "Actif"};
         PageRecherche pageRecherche = new PageRecherche(personnel, request, criteres, new String[0], 3, colonnes, colonnes.length);
         pageRecherche.setTitre("Liste du personnel");
         pageRecherche.setUtilisateur((user.UserEJB) session.getValue("u"));
@@ -20,7 +20,7 @@
     <section class="content-header"><h1><%=pageRecherche.getTitre()%></h1></section>
     <section class="content">
         <a class="btn btn-primary" href="<%=pageRecherche.getLien()%>?but=personnel/personnel-saisie.jsp">
-            <i class="fa fa-user-plus"></i> Embaucher / saisir un personnel
+            <i class="fa fa-user-plus"></i> Créer une fiche personnelle
         </a>
         <a class="btn btn-default" href="<%=pageRecherche.getLien()%>?but=personnel/personnel-mouvement-liste.jsp">
             <i class="fa fa-history"></i> Historique des mouvements

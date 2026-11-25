@@ -9,13 +9,14 @@
 <%@ page import="user.*" %>
 <%@ page import="bean.*" %>
 <%@ page import="affichage.*" %>
+<%@ page import="annexe.Poste" %>
 
 <%
     UserEJB u = (user.UserEJB)session.getValue("u");
 
 %>
 <%
-    TypeObjet categorie = new TypeObjet();
+    Poste categorie = new Poste();
     categorie.setNomTable("poste");
 
     PageConsulte pc = new PageConsulte(categorie, request, u);
@@ -25,9 +26,11 @@
     pc.getChampByName("id").setLibelle("Id");
     pc.getChampByName("val").setLibelle("D&eacute;signation");
     pc.getChampByName("desce").setLibelle("Description");
+    pc.getChampByName("scoreminimum").setLibelle("Score minimum requis pour l'embauche");
+    pc.setOrdre(new String[]{"id", "val", "desce", "scoreminimum"});
     String lien = (String) session.getValue("lien");
     String pageModif = "annexe/poste/poste-saisie.jsp&acte=update";
-    String classe = "bean.TypeObjet";
+    String classe = "annexe.Poste";
 %>
 
 <div class="content-wrapper">

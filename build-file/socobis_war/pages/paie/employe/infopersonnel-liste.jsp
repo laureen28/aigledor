@@ -27,7 +27,7 @@
     //String libEntete[] = {"id", "matricule", "nom", "prenom", "sexe", "numero_cin", "direction", "service", "qualificationLib","departementLib","temporaire","etatLib"};
     String libEntete[] = {"id", "matricule", "nom", "prenom", "sexe", "direction", "service", "qualificationLib","departementLib","temporaire","etatLib"};
     PageRecherche pr = new PageRecherche(dr, request, listeCrt, listeInt, 3, libEntete, libEntete.length);
-    pr.setAWhere(" AND id NOT IN (SELECT idpersonnel FROM paie_personnel_archive) ORDER BY NULLIF(SUBSTRING(matricule FROM '^[0-9]+'), '')::NUMERIC NULLS LAST, matricule ASC");
+    pr.setAWhere(" AND id NOT IN (SELECT idpersonnel FROM paie_personnel_archive)");
     pr.setUtilisateur((user.UserEJB) session.getValue("u"));
     pr.setLien((String) session.getValue("lien"));
 
@@ -140,6 +140,6 @@
 <%}catch(Exception e){
     e.printStackTrace();
 %>
-<script language="JavaScript"> alert('Impossible de charger la liste des employés. Vérifiez la migration RH et le journal WildFly.'); history.back();</script>
+<script language="JavaScript"> alert('Impossible de charger la liste des employés. Consultez le journal WildFly pour le détail.'); history.back();</script>
 <%
 }%>

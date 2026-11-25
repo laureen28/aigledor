@@ -1,4 +1,5 @@
 
+<%@ page pageEncoding="UTF-8" contentType="text/html; charset=UTF-8" %>
 <%@page import="paie.employe.EmployeComplet"%>
 <%@page import="affichage.Liste"%>
 <%@page import="bean.TypeObjet"%>
@@ -7,6 +8,27 @@
 <%@ page import="paie.categorie.CategoriePaie" %>
 <%@ page import="java.util.LinkedHashMap" %>
 
+<%!
+    private String escapePersonnelAlert(String value) {
+        if (value == null) return "";
+        return value.replace("\\", "\\\\").replace("'", "\\'")
+                .replace("\r", "\\r").replace("\n", "\\n").replace("</", "<\\/");
+    }
+
+    private String personnelErrorMessage(Exception error) {
+        String message = error.getMessage();
+        return error.getClass().getSimpleName()
+                + (message == null || message.trim().isEmpty() ? "" : ": " + message);
+    }
+
+    private void requirePersonnelChamp(PageInsert pageInsert, String nomChamp) {
+        if (pageInsert.getFormu().getChamp(nomChamp) == null) {
+            throw new IllegalStateException(
+                    "Champ '" + nomChamp + "' absent du formulaire EMPLOYE_COMPLET. " +
+                    "Vérifiez les colonnes exposées par la vue et le modèle chargé par WildFly.");
+        }
+    }
+%>
 <%
     try {
         String titre = "Saisie des informations du personnel";
@@ -25,7 +47,7 @@
         ec.setNomTable("EMPLOYE_COMPLET");
 
         PageInsert pi = new PageInsert(ec, request, (user.UserEJB) session.getValue("u"));
-        String[] ordre = {"dateembauche","matricule", "nom", "prenom", "idCivilite", "date_naissance", "lieu_naissance_commune", "sexe", "numero_cin", "date_cin", "date_dupl_cin", "lieu_delivrance_cin", "pere", "mere", "nationalite", "fokotany", "adresse", "adresse_ligne1", "adresse_ligne2", "code_postal", "direction", "service", "idDepartement", "telephone", "mail", "situation_matrimonial", "acte_naissance", "nbenfant", "cturgence_nom_prenom", "cturgence_telephone1", "cturgence_telephone2", "cturgence_telephone3", "permis_conduire", "initiale", "idfonction", "idcategorie", "idcategorie_paie", "idqualification", "indicegrade", "indice_fonctionnel", "echelon", "classee", "statut", "ctg", "matricule_patron", "droit_hs", "vehiculee", "salaireBase", "tauxHoraire", "numero_cnaps", "numero_ostie", "mode_paiement", "idBanque", "idAgence", "banque_numero_compte", "banque_compte_cle", "idStatut", "retraiteCompl", "typeContrat", "debutcontrat", "fincontrat", "temporaire", "indesirable", "duree", "region", "formation", "discipline", "anneeExperience", "remarque"};
+        String[] ordre = {"dateembauche","matricule", "nom", "prenom", "idCivilite", "date_naissance", "lieu_naissance_commune", "sexe", "numero_cin", "date_cin", "date_dupl_cin", "lieu_delivrance_cin", "pere", "mere", "nationalite", "fokotany", "adresse", "code_postal", "direction", "service", "idDepartement", "telephone", "mail", "situation_matrimonial", "acte_naissance", "nbenfant", "cturgence_nom_prenom", "cturgence_telephone1", "cturgence_telephone2", "cturgence_telephone3", "permis_conduire", "initiale", "idfonction", "idcategorie", "idcategorie_paie", "idqualification", "indicegrade", "indice_fonctionnel", "echelon", "classee", "statut", "ctg", "matricule_patron", "droit_hs", "vehiculee", "salaireBase", "tauxHoraire", "numero_cnaps", "numero_ostie", "mode_paiement", "idBanque", "idAgence", "banque_numero_compte", "banque_compte_cle", "idStatut", "retraiteCompl", "typeContrat", "debutcontrat", "fincontrat", "temporaire", "indesirable", "duree", "region", "formation", "discipline", "anneeExperience", "remarque"};
         pi.getFormu().setOrdre(ordre);
         pi.setLien((String) session.getValue("lien"));
         pi.getFormu().getChamp("nom").setLibelle("Nom (*)");
@@ -83,6 +105,19 @@
         liste[12].makeListeOuiNon();
         
         pi.getFormu().changerEnChamp(liste);
+        for (String nomChamp : ordre) {
+            requirePersonnelChamp(pi, nomChamp);
+        }
+        String[] champsSupplementaires = {
+            "id_pers", "chemin_permis", "datesaisie", "heurehebdomadaire",
+            "code_agence_banque", "cheminImage", "banque_code", "date_dernierpromo",
+            "heuremensuel", "etat", "idconjoint", "personnel_etat", "heurejournalier",
+            "idCiviliteLib", "idBanqueLib", "codeAgence", "idAgenceLib",
+            "salaireBase", "tauxHoraire"
+        };
+        for (String nomChamp : champsSupplementaires) {
+            requirePersonnelChamp(pi, nomChamp);
+        }
         pi.getFormu().getChamp("service").setPageAppelComplete("paie.log.LogService","id","log_service_libelle");
         pi.getFormu().getChamp("idfonction").setPageAppelComplete("paie.edition.PaieFonction","id","PAIE_FONCTIONLIBELLE");
         pi.getFormu().getChamp("idcategorie_paie").setPageAppelComplete("paie.categorie.CategoriePaie","id","CATEGORIE_PAIE_LIB");
@@ -138,7 +173,6 @@
         
         pi.getFormu().getChamp("code_agence_banque").setVisible(false);
         pi.getFormu().getChamp("cturgence_nom_prenom").setLibelle("Nom Du Contact D'urgence");
-        //pi.getFormu().getChamp("adresse_ligne2").setLibelle("Commune");
         //pi.getFormu().getChamp("code_postal").setLibelle("Code postal");
         pi.getFormu().getChamp("service").setLibelle("Section");
          //pi.getFormu().getChamp("region").setLibelle("Lieu d'affectation");
@@ -206,8 +240,6 @@
                 "situation_matrimonial",
                 "nbenfant",
                 "adresse",
-                "adresse_ligne1",
-                "adresse_ligne2",
                 "code_postal",
                 "direction",
                 "telephone",
@@ -411,7 +443,7 @@
     e.printStackTrace();
 %>
 <script language="JavaScript">
-    alert('<%=e.getMessage()%>');
+    alert('<%=escapePersonnelAlert(personnelErrorMessage(e))%>');
     history.back();
 </script>
 <% }%>

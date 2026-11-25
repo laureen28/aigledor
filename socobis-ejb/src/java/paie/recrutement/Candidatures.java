@@ -5,6 +5,7 @@ import bean.ClassEtat;
 import reporting.mail.Mail;
 import reporting.mail.MailRappel;
 import reporting.utilitaire.ConstanteCR;
+import personnel.PersonnelGestionService;
 import utilitaire.UtilDB;
 import utils.ConstanteAxelle;
 
@@ -13,6 +14,7 @@ import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.time.LocalDate;
 
 public class Candidatures extends ClassEtat {
     private String id;
@@ -109,67 +111,11 @@ public class Candidatures extends ClassEtat {
             }
             c = new UtilDB().GetConn();
             c.setAutoCommit(false);
-
-            Candidatures critere = new Candidatures();
-            Candidatures[] candidatures = (Candidatures[]) CGenUtil.rechercher(
-                    critere, null, null, c,
-                    " AND id = '" + this.getId().replace("'", "''") + "'"
-            );
-            if (candidatures == null || candidatures.length == 0) {
-                throw new Exception("Candidature introuvable.");
-            }
-
-            Candidatures candidature = candidatures[0];
+            Candidatures candidature = chargerCandidature(c, this.getId());
             if (candidature.getEtat() != constante.ConstanteEtat.getEtatCreer()) {
                 throw new Exception("Seule une candidature créée peut être retenue.");
             }
-            if (candidature.getScorequalification() == null) {
-                throw new Exception("Le score du candidat n'est pas renseigné.");
-            }
-            if (candidature.getScorequalification() < 0) {
-                throw new Exception("Le score du candidat ne peut pas être négatif.");
-            }
-            if (Double.isNaN(candidature.getScorequalification()) || Double.isInfinite(candidature.getScorequalification())) {
-                throw new Exception("Le score du candidat doit être un nombre décimal valide.");
-            }
-            if (candidature.getIdoffreemploie() == null || candidature.getIdoffreemploie().trim().isEmpty()) {
-                throw new Exception("Aucune offre n'est associée à cette candidature.");
-            }
-
-            OffreEmploi offreCritere = new OffreEmploi();
-            OffreEmploi[] offres = (OffreEmploi[]) CGenUtil.rechercher(
-                    offreCritere, null, null, c,
-                    " AND id = '" + candidature.getIdoffreemploie().replace("'", "''") + "'"
-            );
-            if (offres == null || offres.length == 0) {
-                throw new Exception("L'offre d'emploi associée à cette candidature est introuvable.");
-            }
-            if (offres[0].getIdficheposte() == null || offres[0].getIdficheposte().trim().isEmpty()) {
-                throw new Exception("L'offre n'est associée à aucune fiche de poste.");
-            }
-
-            BigDecimal seuil;
-            try (PreparedStatement poste = c.prepareStatement(
-                    "SELECT scoreminimum FROM public.fiche_poste WHERE id = ?")) {
-                poste.setString(1, offres[0].getIdficheposte());
-                try (ResultSet result = poste.executeQuery()) {
-                    if (!result.next()) {
-                        throw new Exception("La fiche de poste associée à cette offre est introuvable.");
-                    }
-                    seuil = result.getBigDecimal("scoreminimum");
-                }
-            }
-            if (seuil == null) {
-                throw new Exception("Le score minimum n'est pas renseigné sur la fiche de poste.");
-            }
-            if (seuil.signum() < 0) {
-                throw new Exception("Le score minimum ne peut pas être négatif.");
-            }
-            BigDecimal score = BigDecimal.valueOf(candidature.getScorequalification());
-            if (score.compareTo(seuil) < 0) {
-                throw new Exception("Candidat non retenu : son score (" + candidature.getScorequalification()
-                        + ") est inférieur au minimum requis pour ce poste (" + seuil + ").");
-            }
+            verifierQualification(c, candidature);
 
             candidature.setEtat(constante.ConstanteEtat.getEtatValider());
             candidature.updateToTableWithHisto(utilisateur, c);
@@ -186,6 +132,178 @@ public class Candidatures extends ClassEtat {
         }
     }
 
+    public String embaucher(String utilisateur) throws Exception {
+        Connection c = null;
+        try {
+            if (this.getId() == null || this.getId().trim().isEmpty()) {
+                throw new Exception("Identifiant de candidature manquant.");
+            }
+            if (utilisateur == null || utilisateur.trim().isEmpty()) {
+                throw new Exception("Utilisateur non identifié.");
+            }
+
+            c = new UtilDB().GetConn();
+            c.setAutoCommit(false);
+            Candidatures candidature = chargerCandidature(c, this.getId());
+            int etatValider = constante.ConstanteEtat.getEtatValider();
+            if (candidature.getEtat() != constante.ConstanteEtat.getEtatCreer()
+                    && candidature.getEtat() != etatValider) {
+                throw new Exception("Seule une candidature créée ou retenue peut être embauchée.");
+            }
+            verifierQualification(c, candidature);
+
+            Candidat candidat = chargerCandidat(c, candidature.getIdcandidat());
+            if (candidat.getIdpersonnel() != null && !candidat.getIdpersonnel().trim().isEmpty()) {
+                throw new Exception("Une fiche personnelle existe déjà pour ce candidat.");
+            }
+            try (PreparedStatement query = c.prepareStatement(
+                    "SELECT 1 FROM public.candidatures WHERE idcandidat = ? AND etat = 13 LIMIT 1")) {
+                query.setString(1, candidat.getId());
+                try (ResultSet result = query.executeQuery()) {
+                    if (result.next()) {
+                        throw new Exception("Ce candidat a déjà été embauché sur une autre candidature.");
+                    }
+                }
+            }
+
+            Date dateEmbauche = Date.valueOf(LocalDate.now().plusDays(7));
+            String idPersonnel = new PersonnelGestionService().creerDepuisEmbauche(
+                    c, candidat.getNom(), candidat.getPrenom(), candidat.getTelephone(),
+                    candidat.getEmail(), candidat.getAdresse(), candidat.getRemarque(),
+                    candidat.getCompte(), candidat.getIdposte(), candidat.getIdmagasin(),
+                    dateEmbauche, utilisateur);
+
+            try (PreparedStatement update = c.prepareStatement(
+                    "UPDATE public.candidat SET idpersonnel = ? WHERE id = ? " +
+                    "AND (idpersonnel IS NULL OR BTRIM(idpersonnel) = '')")) {
+                update.setString(1, idPersonnel);
+                update.setString(2, candidat.getId());
+                if (update.executeUpdate() != 1) {
+                    throw new Exception("Le lien vers la fiche personnelle n'a pas pu être enregistré.");
+                }
+            }
+
+            candidature.setEtat(13);
+            candidature.updateToTableWithHisto(utilisateur, c);
+            c.commit();
+            return idPersonnel;
+        } catch (Exception e) {
+            if (c != null) {
+                try {
+                    c.rollback();
+                } catch (Exception rollbackError) {
+                    e.addSuppressed(rollbackError);
+                }
+            }
+            throw e;
+        } finally {
+            if (c != null) {
+                c.close();
+            }
+        }
+    }
+
+    private Candidatures chargerCandidature(Connection connection, String id) throws Exception {
+        Candidatures candidature = new Candidatures();
+        try (PreparedStatement statement = connection.prepareStatement(
+                "SELECT id, idcandidat, idoffreemploie, dateapplication, remarque, raisonrefus, scorequalification, etat " +
+                "FROM public.candidatures WHERE id = ? FOR UPDATE")) {
+            statement.setString(1, id);
+            try (ResultSet result = statement.executeQuery()) {
+                if (!result.next()) throw new Exception("Candidature introuvable.");
+                candidature.setId(result.getString("id"));
+                candidature.setIdcandidat(result.getString("idcandidat"));
+                candidature.setIdoffreemploie(result.getString("idoffreemploie"));
+                candidature.setDateapplication(result.getDate("dateapplication"));
+                candidature.setRemarque(result.getString("remarque"));
+                candidature.setRaisonrefus(result.getString("raisonrefus"));
+                double score = result.getDouble("scorequalification");
+                candidature.setScorequalification(result.wasNull() ? null : score);
+                candidature.setEtat(result.getInt("etat"));
+            }
+        }
+        return candidature;
+    }
+
+    private Candidat chargerCandidat(Connection connection, String id) throws Exception {
+        try (PreparedStatement statement = connection.prepareStatement(
+                "SELECT id, nom, prenom, email, telephone, adresse, idqualification, remarque, idfonction, " +
+                "idposte, idmagasin, idpersonnel, direction, compte FROM public.candidat WHERE id = ? FOR UPDATE")) {
+            statement.setString(1, id);
+            try (ResultSet result = statement.executeQuery()) {
+                if (!result.next()) throw new Exception("Candidat introuvable.");
+                Candidat candidat = new Candidat();
+                candidat.setId(result.getString("id"));
+                candidat.setNom(result.getString("nom"));
+                candidat.setPrenom(result.getString("prenom"));
+                candidat.setEmail(result.getString("email"));
+                candidat.setTelephone(result.getString("telephone"));
+                candidat.setAdresse(result.getString("adresse"));
+                candidat.setIdqualification(result.getString("idqualification"));
+                candidat.setRemarque(result.getString("remarque"));
+                candidat.setIdfonction(result.getString("idfonction"));
+                candidat.setIdposte(result.getString("idposte"));
+                candidat.setIdmagasin(result.getString("idmagasin"));
+                candidat.setIdpersonnel(result.getString("idpersonnel"));
+                candidat.setDirection(result.getString("direction"));
+                candidat.setCompte(result.getString("compte"));
+                return candidat;
+            }
+        }
+    }
+
+    private void verifierQualification(Connection connection, Candidatures candidature) throws Exception {
+        if (candidature.getScorequalification() == null) {
+            throw new Exception("Le score du candidat n'est pas renseigné.");
+        }
+        if (candidature.getScorequalification() < 0) {
+            throw new Exception("Le score du candidat ne peut pas être négatif.");
+        }
+        if (Double.isNaN(candidature.getScorequalification()) || Double.isInfinite(candidature.getScorequalification())) {
+            throw new Exception("Le score du candidat doit être un nombre décimal valide.");
+        }
+        if (candidature.getIdcandidat() == null || candidature.getIdcandidat().trim().isEmpty()) {
+            throw new Exception("Aucun candidat n'est associé à cette candidature.");
+        }
+
+        String idPoste;
+        try (PreparedStatement candidat = connection.prepareStatement(
+                "SELECT idposte FROM public.candidat WHERE id = ? FOR SHARE")) {
+            candidat.setString(1, candidature.getIdcandidat());
+            try (ResultSet result = candidat.executeQuery()) {
+                if (!result.next()) {
+                    throw new Exception("Le candidat associé à cette candidature est introuvable.");
+                }
+                idPoste = result.getString("idposte");
+            }
+        }
+        if (idPoste == null || idPoste.trim().isEmpty()) {
+            throw new Exception("Aucun poste n'est associé au candidat.");
+        }
+
+        BigDecimal seuil;
+        try (PreparedStatement poste = connection.prepareStatement(
+                "SELECT scoreminimum FROM public.poste WHERE id::VARCHAR = ? FOR SHARE")) {
+            poste.setString(1, idPoste);
+            try (ResultSet result = poste.executeQuery()) {
+                if (!result.next()) {
+                    throw new Exception("Le poste choisi par le candidat est introuvable.");
+                }
+                seuil = result.getBigDecimal("scoreminimum");
+            }
+        }
+        if (seuil == null) {
+            throw new Exception("Le score minimum n'est pas renseigné sur le poste choisi.");
+        }
+        if (seuil.signum() < 0) {
+            throw new Exception("Le score minimum ne peut pas être négatif.");
+        }
+        BigDecimal score = BigDecimal.valueOf(candidature.getScorequalification());
+        if (score.compareTo(seuil) < 0) {
+            throw new Exception("Candidat non retenu : son score (" + candidature.getScorequalification()
+                    + ") est inférieur au minimum requis pour ce poste (" + seuil + ").");
+        }
+    }
 
     public void refuser(String u) throws Exception {
         Connection c = null;

@@ -27,6 +27,9 @@
     pu.getFormu().getChamp("id").setAutre("readonly");
     pu.getFormu().getChamp("val").setLibelle("D&eacute;signation");
     pu.getFormu().getChamp("desce").setLibelle("Description");
+    pu.getFormu().getChamp("scoreminimum").setLibelle("Score minimum requis pour l'embauche");
+    pu.getFormu().getChamp("scoreminimum").setType("number");
+    pu.getFormu().getChamp("scoreminimum").setAutre("step='any' min='0' required");
     String lien = (String) session.getValue("lien");
     String id=pu.getBase().getTuppleID();
     pu.preparerDataFormu();

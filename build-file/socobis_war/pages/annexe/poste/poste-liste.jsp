@@ -7,14 +7,14 @@
 <%@page import="affichage.PageRecherche"%>
 <%@ page import="java.util.Map" %>
 <%@ page import="java.util.HashMap" %>
-<%@ page import="bean.TypeObjet" %>
+<%@ page import="annexe.Poste" %>
 
 <% try{
-    TypeObjet t = new TypeObjet();
+    Poste t = new Poste();
     t.setNomTable("poste");
-    String listeCrt[] = {"id", "val","desce"};
+    String listeCrt[] = {"id", "val","desce", "scoreminimum"};
     String listeInt[] = {};
-    String libEntete[] = {"id", "val", "desce"};
+    String libEntete[] = {"id", "val", "desce", "scoreminimum"};
     PageRecherche pr = new PageRecherche(t, request, listeCrt, listeInt, 3, libEntete, libEntete.length);
     pr.setTitre("Liste des postes");
     pr.setUtilisateur((user.UserEJB) session.getValue("u"));
@@ -23,6 +23,7 @@
     pr.getFormu().getChamp("id").setLibelle("Id");
     pr.getFormu().getChamp("val").setLibelle("D&eacute;signation");
     pr.getFormu().getChamp("desce").setLibelle("Description");
+    pr.getFormu().getChamp("scoreminimum").setLibelle("Score minimum requis");
     String[] colSomme = null;
     pr.creerObjetPage(libEntete, colSomme);
 
@@ -36,7 +37,7 @@
     String colonneLien[] = {"id"};
     pr.getTableau().setLien(lienTableau);
     pr.getTableau().setColonneLien(colonneLien);
-    String libEnteteAffiche[] = {"ID", "D&eacute;signation", "Description"};
+    String libEnteteAffiche[] = {"ID", "D&eacute;signation", "Description", "Score minimum requis"};
     pr.getTableau().setLibelleAffiche(libEnteteAffiche);
     pr.getFormu().setAnotherButton("" +
     "<a class=\"btn btn-primary pull-right btn-small\" href=\"module.jsp?but=annexe/poste/poste-saisie.jsp&currentMenu=MNDN000000011061117\">\n" +

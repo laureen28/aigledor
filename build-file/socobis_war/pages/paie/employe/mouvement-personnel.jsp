@@ -2,7 +2,7 @@
 <%@ page import="affichage.PageRecherche" %>
 <%@ page import="bean.ClassMAPTable" %>
 <%@ page import="paie.employe.MouvementPersonnelHistorique" %>
-<%@ page import="paie.employe.EmployeComplet" %>
+<%@ page import="paie.demande.EmployeComplet" %>
 <%@ page import="paie.recrutement.RecrutementAccess" %>
 <%@ page import="historique.MapUtilisateur" %>
 <%@ page import="java.net.URLEncoder" %>
@@ -41,6 +41,20 @@
     private String displayValue(String value) {
         return value == null || value.trim().isEmpty() ? "—" : escapeHtml(value);
     }
+
+    private String escapeAlert(String value) {
+        if (value == null) {
+            return "";
+        }
+        return value.replace("\\", "\\\\").replace("'", "\\'")
+                .replace("\r", "\\r").replace("\n", "\\n").replace("</", "<\\/");
+    }
+
+    private String errorMessage(Exception error) {
+        String message = error.getMessage();
+        return error.getClass().getSimpleName()
+                + (message == null || message.trim().isEmpty() ? "" : ": " + message);
+    }
 %>
 
 <%
@@ -56,11 +70,17 @@
         };
         PageRecherche recherche = new PageRecherche(historique, request, criteres, intervalles, 3, colonnes, colonnes.length);
         user.UserEJB utilisateur = (user.UserEJB) session.getValue("u");
+        if (utilisateur == null || utilisateur.getUser() == null) {
+            throw new Exception("Session utilisateur absente ou profil utilisateur indisponible.");
+        }
         recherche.setUtilisateur(utilisateur);
         recherche.setLien((String) session.getValue("lien"));
         recherche.setApres("paie/employe/mouvement-personnel.jsp");
         String restriction = "";
         MapUtilisateur mapUtilisateur = utilisateur.getUser();
+        if (mapUtilisateur.getIdrole() == null) {
+            throw new Exception("Le rôle de l'utilisateur n'est pas renseigné.");
+        }
         boolean agent = "agent".equalsIgnoreCase(mapUtilisateur.getIdrole());
         if (agent) {
             EmployeComplet employe = new EmployeComplet().getEmployeByRefUser(mapUtilisateur.getTuppleID());
@@ -207,7 +227,7 @@
         e.printStackTrace();
 %>
 <script>
-    alert('<%=escapeHtml(e.getMessage())%>');
+    alert('<%=escapeAlert(errorMessage(e))%>');
     history.back();
 </script>
 <% } %>

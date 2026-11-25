@@ -9,6 +9,13 @@
 <%@ page import="paie.recrutement.Candidatures" %>
 <%@ page import="paie.recrutement.RecrutementAccess" %>
 
+<%!
+    private String escapeJavaScript(String value) {
+        if (value == null) return "Erreur inconnue.";
+        return value.replace("\\", "\\\\").replace("'", "\\'")
+                .replace("\r", "\\r").replace("\n", "\\n").replace("</", "<\\/");
+    }
+%>
 <%  try {
     String[] tId;
     String nomtable = request.getParameter("nomtable");
@@ -35,9 +42,17 @@
         candidatures.retenir(u.getUser().getTuppleID());
 %>
 <script language="JavaScript"> document.location.replace("<%=lien%>?but=<%=bute%>&id=<%=id%>");</script>
+<% } else if (acte != null && acte.equalsIgnoreCase("embaucher")) {
+        Candidatures candidatures = new Candidatures();
+        candidatures.setId(id);
+        String idPersonnel = candidatures.embaucher(u.getUser().getTuppleID());
+        String destination = lien + "?but=personnel/personnel-fiche.jsp&id="
+                + java.net.URLEncoder.encode(idPersonnel, "UTF-8");
+        response.sendRedirect(destination);
+        return;
 <% }
 
 } catch (Exception e) {
     e.printStackTrace(); %>
-<script language="JavaScript"> alert('Impossible de traiter cette candidature. Consultez le journal WildFly pour le détail.');history.back();</script>
+<script language="JavaScript"> alert('<%=escapeJavaScript(e.getMessage())%>');history.back();</script>
 <% } %>

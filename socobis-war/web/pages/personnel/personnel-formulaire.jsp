@@ -27,7 +27,7 @@
 %>
 <div class="content-wrapper">
     <section class="content-header">
-        <h1><%=modification ? "Modifier un personnel" : "Saisir un personnel"%></h1>
+        <h1><%=modification ? "Modifier une fiche personnelle" : "Créer une fiche personnelle"%></h1>
     </section>
     <section class="content">
         <form action="<%=personnelEscape(lien)%>?but=personnel/personnel-action.jsp" method="post">
@@ -36,6 +36,10 @@
                 <div class="col-md-6 form-group">
                     <label for="nom">Nom *</label>
                     <input class="form-control" id="nom" name="nom" required value="<%=personnelEscape(personnel == null ? null : personnel.getNom())%>">
+                </div>
+                <div class="col-md-6 form-group">
+                    <label for="prenom">Prénom</label>
+                    <input class="form-control" id="prenom" name="prenom" value="<%=personnelEscape(personnel == null ? null : personnel.getPrenom())%>">
                 </div>
                 <div class="col-md-6 form-group">
                     <label for="telephone">Téléphone</label>

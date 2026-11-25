@@ -39,6 +39,11 @@
     String pageApresDelete = "paie/recrutement/candidature-liste.jsp";
     String pageActuel = "paie/recrutement/candidature-fiche.jsp";
     String classe = "paie.recrutement.Candidatures";
+    boolean candidatureEnCours = o.getEtat() == ConstanteEtat.getEtatCreer()
+            || o.getEtat() == ConstanteEtat.getEtatValider();
+    boolean scoreSuffisant = o.getScorequalification() != null
+            && o.getScoreminimum() != null
+            && o.getScorequalification() >= o.getScoreminimum();
 
 %>
 
@@ -62,32 +67,37 @@
                              <a class="btn btn-warning pull-right"  href="<%= lien + "?but="+ pageModif +"&id=" + id %>" style="margin-right: 10px">Modifier</a>
                         <% }%>
                         <a  class="pull-right" href="<%= lien + "?but=apresTarif.jsp&id=" + id+"&acte=delete&bute="+pageApresDelete+"&classe="+classe %>"><button class="btn btn-danger">Supprimer</button></a>
-                         <% if (o.getScorequalification() == null || o.getScoreminimum() == null || o.getScorequalification() < o.getScoreminimum()) { %>
-                         <div class="alert alert-danger">
-                             <% if (o.getScorequalification() == null) { %>
-                             Score du candidat non renseigné.
-                             <% } else if (o.getScoreminimum() == null) { %>
-                             Score minimum non configuré dans la fiche de poste.
-                             <% } else { %>
-                             Candidat non qualifié : son score (<%=o.getScorequalification()%>) est inférieur au minimum du poste (<%=o.getScoreminimum()%>).
-                             <% } %>
-                         </div>
-                         <% } else { %>
-                         <a class="btn btn-primary pull-right" href="<%= lien + "?but=paie/recrutement/apresCandidature.jsp&acte=retenir&id=" + id + "&bute=" + pageActuel %>" style="margin-right: 10px">Retenir le candidat</a>
-                         <% } %>
                          <a class="btn btn-success pull-right"
                            href="<%= lien + "?but=paie/recrutement/apresCandidature.jsp&id=" + id + "&acte=refuser&bute=" + pageActuel + "&classe="+classe%>"
                            style="margin-right: 10px">
                             Refuser
                         </a>
                          <% }%>
-                         <% if (o.getEtat() >= ConstanteEtat.getEtatValider()) {%>
+                        <% if (candidatureEnCours && !scoreSuffisant) { %>
+                        <div class="alert alert-danger">
+                            <% if (o.getScorequalification() == null) { %>
+                            Score du candidat non renseigné.
+                            <% } else if (o.getScoreminimum() == null) { %>
+                            Score minimum non configuré sur le poste choisi.
+                            <% } else { %>
+                            Candidat non qualifié : son score (<%=o.getScorequalification()%>) est inférieur au minimum du poste (<%=o.getScoreminimum()%>).
+                            <% } %>
+                        </div>
+                        <% } else if (candidatureEnCours) { %>
+                        <a class="btn btn-primary pull-right"
+                           href="<%= lien + "?but=paie/recrutement/apresCandidature.jsp&acte=embaucher&id=" + id + "&bute=" + pageActuel %>"
+                           style="margin-right: 10px">Embaucher et créer la fiche personnelle</a>
+                        <% } %>
+                        <% if (o.getEtat() == ConstanteEtat.getEtatValider()) {%>
                          <a class="btn btn-success pull-right" 
                             href="<%= lien + "?but=entretient/entretient-saisie.jsp&idCandidature=" + id %>" 
                             style="margin-right: 10px">
                              Enregistrer un entretient
                             </a>
                           <% }%>
+                         <% if (o.getEtat() == 13) { %>
+                         <div class="alert alert-success">Une fiche personnelle a été créée pour cette candidature.</div>
+                         <% } %>
                         
                     </div>
                     <br/>

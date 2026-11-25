@@ -59,9 +59,6 @@
     pi.getFormu().getChamp("missions").setLibelle("Missions");
     pi.getFormu().getChamp("exigenceposte").setLibelle("Exigences du poste");
     pi.getFormu().getChamp("salairemin").setLibelle("Salaire");
-    pi.getFormu().getChamp("scoreminimum").setLibelle("Score minimum de qualification");
-    pi.getFormu().getChamp("scoreminimum").setType("number");
-    pi.getFormu().getChamp("scoreminimum").setAutre("step='any' min='0' required");
     //pi.getFormu().getChamp("salairemax").setLibelle("Salaire maximum");
     pi.getFormu().getChamp("lieuTravail").setLibelle("Lieu de travail");
     pi.getFormu().getChamp("materielDocument").setLibelle("Mat&eacute;riel de documentation");
@@ -93,7 +90,6 @@
             "idtypecontrat",
             "idCategoriePaie",
             "idQualificationPaie",
-            "scoreminimum",
             "idNiveauFormation",
             "idPermis",
             "lieuTravail",

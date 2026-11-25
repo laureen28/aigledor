@@ -2,6 +2,7 @@
 <%@ page import="affichage.PageInsert" %>
 <%@ page import="affichage.Liste" %>
 <%@ page import="bean.TypeObjet" %>
+<%@ page import="personnel.Personnel" %>
 <%@ page import="personnel.PersonnelComplet" %>
 <%@ page import="personnel.PersonnelGestionService" %>
 <%@ page import="user.UserEJB" %>
@@ -20,6 +21,7 @@
         Personnel personnel = new Personnel();
         personnel.setId(p.getId());
         personnel.setNom(p.getNom());
+        personnel.setPrenom(p.getPrenom());
         personnel.setTelephone(p.getTelephone());
         personnel.setMail(p.getMail());
         personnel.setAdresse(p.getAdresse());
@@ -43,6 +45,7 @@
         pi.getFormu().changerEnChamp(listes);
 
         pi.getFormu().getChamp("nom").setLibelle("Nom *");
+        pi.getFormu().getChamp("prenom").setLibelle("Prénom");
         pi.getFormu().getChamp("telephone").setLibelle("Téléphone");
         pi.getFormu().getChamp("mail").setLibelle("Email");
         pi.getFormu().getChamp("adresse").setLibelle("Adresse");
@@ -53,7 +56,7 @@
         pi.getFormu().getChamp("dateembauche").setLibelle("Date d'embauche *");
         pi.getFormu().getChamp("dateembauche").setType("date");
 
-        String[] ordre = {"nom", "telephone", "mail", "adresse", "compte", "remarque", "idposte", "idmagasin", "dateembauche"};
+        String[] ordre = {"nom", "prenom", "telephone", "mail", "adresse", "compte", "remarque", "idposte", "idmagasin", "dateembauche"};
         pi.getFormu().setOrdre(ordre);
         
         pi.preparerDataFormu();

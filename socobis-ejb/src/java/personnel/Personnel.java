@@ -6,6 +6,7 @@ import bean.ClassMAPTable;
 public class Personnel extends ClassMAPTable {
     String id;
     String nom;
+    String prenom;
     String telephone;
     String mail;
     String adresse;
@@ -33,12 +34,12 @@ public class Personnel extends ClassMAPTable {
 
     @Override
     public String[] getMotCles() {
-        return new String[]{"id", "nom", "telephone"};
+        return new String[]{"id", "nom", "prenom", "telephone"};
     }
 
     @Override
     public String[] getValMotCles() {
-        return new String[]{"id", "nom", "telephone"};
+        return new String[]{"id", "nom", "prenom", "telephone"};
     }
 
 
@@ -56,6 +57,14 @@ public class Personnel extends ClassMAPTable {
 
     public void setNom(String nom) { 
         this.nom = nom; 
+    }
+
+    public String getPrenom() {
+        return prenom;
+    }
+
+    public void setPrenom(String prenom) {
+        this.prenom = prenom;
     }
 
     public String getTelephone() { 
