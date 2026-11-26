@@ -100,7 +100,7 @@
     <section class="content-header">
         <h1>Liste des employ&eacute;s</h1>
         <% if (!"agent".equalsIgnoreCase(map.getIdrole())) { %>
-        <a class="btn btn-primary" href="<%=pr.getLien()%>?but=paie/employe/mouvement-personnel.jsp">
+        <a class="btn btn-primary" href="<%=pr.getLien()%>?but=personnel/personnel-mouvement-liste.jsp">
             Gestion des embauches et des d&eacute;parts
         </a>
         <% } %>

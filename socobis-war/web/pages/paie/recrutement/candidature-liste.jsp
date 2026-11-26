@@ -6,6 +6,14 @@
 <%@ page import="paie.recrutement.RecrutementAccess" %>
 <%@ page import="user.UserEJB" %>
 
+<%!
+    private String escapeCandidatureError(String value) {
+        if (value == null) return "";
+        return value.replace("&", "&amp;").replace("<", "&lt;")
+                .replace(">", "&gt;").replace("\"", "&quot;").replace("'", "&#39;");
+    }
+%>
+
 <% try{
     RecrutementAccess.verifier((UserEJB) session.getValue("u"));
     String etat = request.getParameter("etat");
@@ -18,8 +26,17 @@
     String[] libEntete = {"id","idcandidat","idcandidatlib","idoffreemploielib","dateapplication","scorequalification","scoreminimum","etatLib"};
     PageRecherche pr = new PageRecherche(o, request, listeCrt, listeInt, 4, libEntete, libEntete.length);
 
+    StringBuilder restriction = new StringBuilder();
+    String idcandidat = request.getParameter("idcandidat");
+    if (idcandidat != null && !idcandidat.trim().isEmpty()) {
+        restriction.append(" AND idcandidat = '")
+                .append(idcandidat.replace("'", "''")).append("'");
+    }
     if(!etat.isEmpty()){
-        pr.setAWhere(" and etat = '"+ etat +"'");
+        restriction.append(" AND etat = '").append(etat.replace("'", "''")).append("'");
+    }
+    if (restriction.length() > 0) {
+        pr.setAWhere(restriction.toString());
     }
 
     pr.setTitre("Liste des candidatures");
@@ -106,8 +123,17 @@
 <% } catch (Exception e) {
   e.printStackTrace();
 %>
-<script language="JavaScript"> alert('Impossible de charger la liste des candidatures. Consultez le journal WildFly pour le détail.');
-    history.back();
-</script>
+<div class="content-wrapper">
+    <section class="content-header">
+        <h1>Liste des candidatures</h1>
+    </section>
+    <section class="content">
+        <div class="alert alert-danger">
+            Impossible de charger la liste des candidatures :
+            <%= escapeCandidatureError(e.getMessage() == null ? e.getClass().getSimpleName() : e.getMessage()) %>
+            Vérifiez que les migrations 2026-11-20, 2026-11-23 et 2026-11-25 ont été exécutées.
+        </div>
+    </section>
+</div>
 <% }%>
 

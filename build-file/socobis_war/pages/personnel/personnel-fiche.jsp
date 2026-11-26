@@ -31,7 +31,7 @@
         String[] ordre = {"id", "nom", "prenom", "telephone", "mail", "adresse", "compte", "poste", "magasin", "dateembauche", "datedebauche", "actif", "remarque"};
         pc.setOrdre(ordre);
 
-        String pageModif = "personnel/personnel-modif.jsp&id=" + id;
+        String pageModif = "personnel/personnel-formulaire.jsp&id=" + id;
         String pageApresDelete = "personnel/personnel-liste.jsp";
         String classe = "personnel.Personnel";
 %>

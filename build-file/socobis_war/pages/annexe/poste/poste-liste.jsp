@@ -9,6 +9,13 @@
 <%@ page import="java.util.HashMap" %>
 <%@ page import="annexe.Poste" %>
 
+<%!
+    private String escapePosteError(String value) {
+        if (value == null) return "";
+        return value.replace("&", "&amp;").replace("<", "&lt;")
+                .replace(">", "&gt;").replace("\"", "&quot;").replace("'", "&#39;");
+    }
+%>
 <% try{
     Poste t = new Poste();
     t.setNomTable("poste");
@@ -66,8 +73,16 @@
 </div>
 <%
     }catch(Exception e){
-
         e.printStackTrace();
+%>
+<div class="content-wrapper">
+    <div class="alert alert-danger">
+        Impossible de charger la liste des postes :
+        <%=escapePosteError(e.getMessage() == null ? e.getClass().getSimpleName() : e.getMessage())%>
+        Vérifiez que la colonne POSTE.scoreminimum a été ajoutée à la base.
+    </div>
+</div>
+<%
     }
 %>
 

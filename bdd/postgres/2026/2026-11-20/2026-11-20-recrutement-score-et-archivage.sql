@@ -146,12 +146,12 @@ INSERT INTO public.menudynamique (id, libelle, icone, href, rang, niveau, id_per
 VALUES
     ('MENDYN261120002', 'Personnel', 'group', NULL, 1, 2, 'MENDYN261120001'),
     ('MENDYN261120003', 'Liste des employés', 'groups', 'module.jsp?but=personnel/personnel-liste.jsp', 1, 3, 'MENDYN261120002'),
-    ('MENDYN261120004', 'Saisir un personnel', 'person_add', 'module.jsp?but=personnel/personnel-saisie.jsp', 2, 3, 'MENDYN261120002'),
-    ('MENDYN261120005', 'Historique et mouvements', 'history', 'module.jsp?but=paie/employe/mouvement-personnel.jsp', 3, 3, 'MENDYN261120002'),
+    ('MENDYN261120004', 'Saisir un personnel', 'person_add', 'module.jsp?but=personnel/personnel-formulaire.jsp', 2, 3, 'MENDYN261120002'),
+    ('MENDYN261120005', 'Historique et mouvements', 'history', 'module.jsp?but=personnel/personnel-mouvement-liste.jsp', 3, 3, 'MENDYN261120002'),
     ('MENDYN261120006', 'Recrutement', 'work', NULL, 2, 2, 'MENDYN261120001'),
     ('MENDYN261120007', 'Liste des candidats', 'groups', 'module.jsp?but=paie/recrutement/candidat-liste.jsp', 1, 3, 'MENDYN261120006'),
     ('MENDYN261120008', 'Saisir un candidat', 'person_add', 'module.jsp?but=paie/recrutement/candidat-saisie.jsp', 2, 3, 'MENDYN261120006'),
-    ('MENDYN261120009', 'Liste des candidatures', 'assignment', 'module.jsp?but=paie/recrutement/candidature-liste.jsp', 3, 3, 'MENDYN261120006'),
+    ('MENDYN261120009', 'Suivi des candidatures', 'assignment', 'module.jsp?but=paie/recrutement/candidature-liste.jsp', 3, 3, 'MENDYN261120006'),
     ('MENDYN261120010', 'Offres d''emploi', 'work', 'module.jsp?but=paie/recrutement/offreemploi-liste.jsp', 4, 3, 'MENDYN261120006')
 ON CONFLICT (id) DO UPDATE SET
     libelle = EXCLUDED.libelle,

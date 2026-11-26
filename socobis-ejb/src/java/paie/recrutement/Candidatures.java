@@ -227,7 +227,7 @@ public class Candidatures extends ClassEtat {
 
     private Candidat chargerCandidat(Connection connection, String id) throws Exception {
         try (PreparedStatement statement = connection.prepareStatement(
-                "SELECT id, nom, prenom, email, telephone, adresse, idqualification, remarque, idfonction, " +
+                "SELECT id, nom, prenom, email, telephone, adresse, idqualification, remarque, " +
                 "idposte, idmagasin, idpersonnel, direction, compte FROM public.candidat WHERE id = ? FOR UPDATE")) {
             statement.setString(1, id);
             try (ResultSet result = statement.executeQuery()) {
@@ -241,7 +241,6 @@ public class Candidatures extends ClassEtat {
                 candidat.setAdresse(result.getString("adresse"));
                 candidat.setIdqualification(result.getString("idqualification"));
                 candidat.setRemarque(result.getString("remarque"));
-                candidat.setIdfonction(result.getString("idfonction"));
                 candidat.setIdposte(result.getString("idposte"));
                 candidat.setIdmagasin(result.getString("idmagasin"));
                 candidat.setIdpersonnel(result.getString("idpersonnel"));

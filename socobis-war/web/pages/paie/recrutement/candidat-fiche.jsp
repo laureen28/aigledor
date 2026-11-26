@@ -3,6 +3,7 @@
 <%@ page import="affichage.PageConsulte" %>
 <%@ page import="paie.recrutement.Candidat" %>
 <%@ page import="paie.recrutement.RecrutementAccess" %>
+<%@ page import="java.net.URLEncoder" %>
 
 <% try{ 
     UserEJB u = (user.UserEJB)session.getValue("u");
@@ -23,6 +24,7 @@
     pc.getChampByName("email").setLibelle("Adresse email");
     pc.getChampByName("idposte").setLibelle("Poste recherch&eacute;");
     pc.getChampByName("idmagasin").setLibelle("Magasin souhait&eacute;");
+    pc.getChampByName("idfonction").setVisible(false);
     pc.getChampByName("idpersonnel").setLibelle("Identifiant de la fiche personnelle");
     pc.getChampByName("idpersonnel").setLien(lien + "?but=personnel/personnel-fiche.jsp", "id=");
 
@@ -59,7 +61,7 @@
                         <a class="btn btn-secondary pull-right" href="<%= lien + "?but="+ pageModif +"&id=" + id %>" style="margin-right: 10px">Modifier</a>
                         <a class="btn btn-danger pull-left" href="<%= lien + "?but=apresTarif.jsp&id=" + id+"&acte=delete&bute="+pageApresDelete+"&classe="+classe %>">Supprimer</a>
                         <a class="btn btn-default pull-right" href="<%=lien%>?but=paie/recrutement/candidat-liste.jsp" style="margin-right:10px">Liste des candidats</a>
-                        <a class="btn btn-primary pull-right" href="<%=lien%>?but=paie/recrutement/candidature-liste.jsp" style="margin-right:10px">Candidatures</a>
+                        <a class="btn btn-primary pull-right" href="<%=lien%>?but=paie/recrutement/candidature-liste.jsp&amp;idcandidat=<%=URLEncoder.encode(id, "UTF-8")%>" style="margin-right:10px" title="Choisir une candidature puis l'embaucher si son score atteint le minimum du poste">Embaucher</a>
                     </div>
                     <br/>
                 </div>

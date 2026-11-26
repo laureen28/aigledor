@@ -19,7 +19,7 @@
 <div class="content-wrapper">
     <section class="content-header"><h1><%=pageRecherche.getTitre()%></h1></section>
     <section class="content">
-        <a class="btn btn-primary" href="<%=pageRecherche.getLien()%>?but=personnel/personnel-saisie.jsp">
+        <a class="btn btn-primary" href="<%=pageRecherche.getLien()%>?but=personnel/personnel-formulaire.jsp">
             <i class="fa fa-user-plus"></i> Créer une fiche personnelle
         </a>
         <a class="btn btn-default" href="<%=pageRecherche.getLien()%>?but=personnel/personnel-mouvement-liste.jsp">

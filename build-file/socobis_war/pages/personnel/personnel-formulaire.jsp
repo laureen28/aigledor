@@ -13,6 +13,12 @@
         return value.replace("&", "&amp;").replace("<", "&lt;")
                 .replace(">", "&gt;").replace("\"", "&quot;").replace("'", "&#39;");
     }
+
+    private String personnelErrorMessage(Exception error) {
+        String message = error.getMessage();
+        return error.getClass().getSimpleName()
+                + (message == null || message.trim().isEmpty() ? "" : ": " + message);
+    }
 %>
 <%
     try {
@@ -93,5 +99,10 @@
     } catch (Exception e) {
         e.printStackTrace();
 %>
-<script>alert('Impossible de charger le formulaire du personnel. Vérifiez la migration RH et le journal WildFly.'); history.back();</script>
+<div class="content-wrapper">
+    <div class="alert alert-danger">
+        Impossible de charger le formulaire du personnel :
+        <%=personnelEscape(personnelErrorMessage(e))%>
+    </div>
+</div>
 <% } %>

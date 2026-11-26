@@ -18,8 +18,17 @@
     String[] libEntete = {"id","idcandidat","idcandidatlib","idoffreemploielib","dateapplication","scorequalification","scoreminimum","etatLib"};
     PageRecherche pr = new PageRecherche(o, request, listeCrt, listeInt, 4, libEntete, libEntete.length);
 
+    StringBuilder restriction = new StringBuilder();
+    String idcandidat = request.getParameter("idcandidat");
+    if (idcandidat != null && !idcandidat.trim().isEmpty()) {
+        restriction.append(" AND idcandidat = '")
+                .append(idcandidat.replace("'", "''")).append("'");
+    }
     if(!etat.isEmpty()){
-        pr.setAWhere(" and etat = '"+ etat +"'");
+        restriction.append(" AND etat = '").append(etat.replace("'", "''")).append("'");
+    }
+    if (restriction.length() > 0) {
+        pr.setAWhere(restriction.toString());
     }
 
     pr.setTitre("Liste des candidatures");

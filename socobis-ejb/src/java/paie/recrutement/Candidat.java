@@ -12,7 +12,7 @@ public class Candidat extends ClassMAPTable {
     private String adresse;
     private String idqualification;
     private String remarque;
-    private String idfonction; 
+    private String idfonction;
     private String idposte;
     private String idmagasin;
     private String idpersonnel;

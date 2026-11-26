@@ -63,6 +63,9 @@
         pageInsert.getFormu().getChamp("idmagasin").setLibelle("Magasin souhaité");
         pageInsert.getFormu().getChamp("compte").setLibelle("Compte");
         pageInsert.getFormu().getChamp("remarque").setLibelle("Remarque");
+        if (pageInsert.getFormu().getChamp("idpersonnel") != null) {
+            pageInsert.getFormu().getChamp("idpersonnel").setVisible(false);
+        }
         LinkedHashMap<String, String[]> rubriques = new LinkedHashMap<String, String[]>();
         rubriques.put("Informations du candidat", new String[]{
             "nom", "prenom", "telephone", "email", "adresse", "compte",
